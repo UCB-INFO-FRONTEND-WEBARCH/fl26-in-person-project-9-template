@@ -1,4 +1,4 @@
-# Week 13: Multi-Page Portfolio with React Router & Advanced Hooks
+# Week 11: Multi-Page Portfolio with React Router & Advanced Hooks
 ## Navigate Your Professional Journey with Dynamic Routing
 
 ### 🎯 Learning Objectives
@@ -13,9 +13,9 @@ By completing this project, you will:
 
 ### 📚 Prerequisites
 Before starting, you should have:
-- Completed Week 13 lecture on React Router & Advanced Hooks
+- Completed Week 11 lecture on React Router & Advanced Hooks
 - Reviewed prep work: React Front To Back Chapters 5 (React Router) & 12 (Advanced Hooks)
-- Your portfolio from Week 10 or 12 (optional but recommended)
+- Your portfolio from Week 9 or 10 (optional but recommended)
 - Understanding of React state, effects, and Context API
 
 ### 🏗️ Project Overview
@@ -23,7 +23,7 @@ Transform your single-page React portfolio into a full multi-page application wi
 
 ### 🚀 Getting Started
 
-**First:** Accept the GitHub Classroom assignment link provided by your instructor. This will create a new repository with the Week 13 starter code.
+**First:** Accept the GitHub Classroom assignment link provided by your instructor. This will create a new repository with the Week 11 starter code.
 
 1. **Clone your new repository:**
    ```bash
@@ -34,15 +34,15 @@ Transform your single-page React portfolio into a full multi-page application wi
 2. **Choose your path:**
 
 #### Option A: Continue from Previous Week (Recommended)
-If you completed the Week 10, 11, or 12 portfolio project:
+If you completed the Week 9 or 10 portfolio project:
 
 1. **Delete the starter files** in your cloned repository (but keep the .git folder)
 2. **Copy your previous week's project files** into the cloned repository:
    ```bash
-   # Example: Copy from Week 12
-   cp -r ~/path-to-week12-project/src/* ./src/
-   cp ~/path-to-week12-project/package.json ./
-   cp ~/path-to-week12-project/vite.config.js ./
+   # Example: Copy from Week 10
+   cp -r ~/path-to-week10-project/src/* ./src/
+   cp ~/path-to-week10-project/package.json ./
+   cp ~/path-to-week10-project/vite.config.js ./
    ```
 
 3. **Install React Router:**
