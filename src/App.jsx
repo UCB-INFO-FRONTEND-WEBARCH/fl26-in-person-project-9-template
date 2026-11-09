@@ -41,7 +41,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>&copy; 2025 My Portfolio. Built with React Router.</p>
+        <p>&copy; 2026 My Portfolio. Built with React Router.</p>
       </footer>
     </div>
   )

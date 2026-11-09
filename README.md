@@ -16,7 +16,7 @@ Before starting, you should have:
 - Attended the Week 11 lecture (React Router and advanced hooks)
 - Read React Front To Back, chapters 5 (React Router) and 12 (Advanced Hooks)
 - Node 18 or newer (`node -v`)
-- Your week 9 portfolio open in another window for your own text (optional; nothing is copied from it today)
+- Your In-Person Project 7 repository (the week 9 React portfolio) open in another window for your own text (optional; nothing is copied from it today)
 
 ### 🏗️ Project Overview
 Your portfolio becomes a real multi-page app: a home page, a projects grid, one page per project read from the URL, about and contact, all without a full page reload. Then the data comes through a hook you wrote, the search box focuses itself, and the theme survives a refresh.
@@ -53,7 +53,7 @@ Today there is one server, Vite. Start the install first; on classroom wifi it c
    ```
 4. **Check:** open http://localhost:5173. You should see "Welcome to Your Portfolio" and a TODO box. The nav links at the top are plain `<a>` tags for now: clicking them reloads the page and shows the same placeholder. That is expected until Part 1.
 
-**Bringing your week 9 content?** This is a fresh repository; nothing continues from your IPP 7 repo. After class, copy your own text (name, skills, project titles) into the starter's pages and into `src/data/projects.js` and `public/projects.json`. Keep the starter's structure: the file names, routes and class names in this README are the starter's.
+**Bringing your own content from In-Person Project 7?** This is a fresh repository; nothing continues from that repo. After class, copy your own text (name, skills, project titles) into the starter's pages and into `src/data/projects.js` and `public/projects.json`. Keep the starter's structure: the file names, routes and class names in this README are the starter's.
 
 ### 📝 Step-by-Step Instructions
 
@@ -91,7 +91,7 @@ import ContactPage from './pages/ContactPage'
         </Routes>
 ```
 
-**Checkpoint 1:** the placeholder is gone and the home page ("Good morning! I'm a Full Stack Developer") shows. Type http://localhost:5173/projects, then `/about`, then `/contact` into the address bar: each shows its page. `/projects/task-manager` shows the Task Manager project (the detail page still shows the first project whatever the id; Part 3 fixes that). The nav links still reload the page; Part 2.
+**Checkpoint 1:** the placeholder is gone and the home page shows ("Good morning", "Good afternoon" or "Good evening" by the clock, then "I'm a Full Stack Developer"). Type http://localhost:5173/projects, then `/about`, then `/contact` into the address bar: each shows its page. `/projects/task-manager` shows the Task Manager project, and so does `/projects/anything` for now (the detail page still shows the first project, Task Manager, whatever the id; Part 3 fixes that). The nav links still reload the page; Part 2.
 
 What's happening here:
 - `BrowserRouter` listens to the browser's URL and history
@@ -145,9 +145,15 @@ import { Link } from 'react-router-dom'
             <ProjectCard project={project} />
           </Link>
 ```
-   (`key` moves to the outer element; `ProjectCard` has no `<a>` of its own, so the link is valid HTML.)
+   (`key` moves to the outer element; `ProjectCard` has no `<a>` of its own, so the link is valid HTML.) Then add one rule at the end of `src/styles/App.css`, so the card text does not turn link-blue and underlined:
+```css
+.project-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+```
 
-**Checkpoint 2:** clicking Projects in the nav changes the page with no reload (the tab's favicon does not flicker) and the Projects link is highlighted with the underline. Home's two buttons go to Projects and Contact. Clicking a project card opens `/projects/<its id>`. The browser Back button works.
+**Checkpoint 2:** clicking Projects in the nav changes the page with no reload (DevTools, Network tab: no new document request, only the page's own data) and the Projects link is highlighted with the underline. Home's two buttons go to Projects and Contact. Clicking a project card opens `/projects/<its id>`. The browser Back button works.
 
 What's happening here:
 - `Link` and `NavLink` change the URL through the router instead of asking the server for a new page
@@ -188,7 +194,7 @@ import { useNavigate } from 'react-router-dom'
 ```jsx
   const navigate = useNavigate()
 ```
-   and inside `handleSubmit`'s `setTimeout`, replace the `TODO: Navigate to home page` comment and the commented `setTimeout` line below it with:
+   and inside `handleSubmit`'s existing `setTimeout` (the one that shows the thank-you line after one second), replace the `TODO: Navigate to home page` comment and the commented `setTimeout` line below it with this second timer, which sends the reader home two seconds after the thank-you line appears:
 ```jsx
       setTimeout(() => navigate('/'), 2000)
 ```
@@ -228,7 +234,9 @@ export function useFetch(url) {
           setError(err.message)
         }
       } finally {
-        setLoading(false)
+        if (!abortController.signal.aborted) {
+          setLoading(false)
+        }
       }
     }
 
@@ -240,7 +248,7 @@ export function useFetch(url) {
   return { data, loading, error }
 }
 ```
-   The `import { useState, useEffect } from 'react'` at the top of the file stays as it is.
+   The `import { useState, useEffect } from 'react'` at the top of the file stays as it is. The `aborted` check matters in development: React 18's `StrictMode` runs every effect twice on mount, so the first fetch is aborted on purpose and must not flip `loading` off.
 
 2. **Use it on the Projects page.** In `src/pages/ProjectsPage.jsx`:
    - replace the `TODO: Import the custom useFetch hook` comment with `import { useFetch } from '../hooks/useFetch'`
@@ -267,8 +275,10 @@ export function useFetch(url) {
       {loading && <div className="spinner">Loading projects...</div>}
       {error && <div className="error">Could not load projects: {error}</div>}
 ```
+   - lower down, change the `no-results` condition so the "No projects match" box does not show while loading or on an error: `{filteredProjects.length === 0 && (` becomes `{!loading && !error && filteredProjects.length === 0 && (`
+   - the detail page (`ProjectDetailPage.jsx`) still reads `projects` from `src/data/projects.js`; that is fine today (the two files hold the same six projects). When you add your own projects after class, edit both files, or the list and the detail pages will disagree.
 
-**Checkpoint 4:** the Projects page shows "Loading projects..." for an instant, then the six cards; the search box still filters as you type. In DevTools, Network tab, you see one request for `projects.json`. Change the URL in `useFetch('/projects.json')` to `/nope.json` and the page shows the red error box; change it back.
+**Checkpoint 4:** the Projects page shows the six cards and the search box still filters as you type. In DevTools, Network tab, you see the request for `projects.json` (in development you see two, the first marked cancelled: that is React 18's `StrictMode` running the effect twice, and the `aborted` check above is why it does no harm). To see the loading state, set the Network tab's throttling to "Slow 3G" and reload: "Loading projects..." shows, then the cards. Change the URL in `useFetch('/projects.json')` to `/nope.json` and the page shows the red error box (in development its text is "Unexpected token '<'", because the Vite dev server answers an unknown path with the app's own HTML page, not a 404); change it back.
 
 What's happening here:
 - A custom hook is a function that uses hooks; it packages state and an effect behind one call
@@ -280,7 +290,7 @@ What's happening here:
 The search box is a controlled input (`value` and `onChange` stay). `useRef` adds focus management without touching the state.
 
 In `src/components/SearchBar.jsx`:
-1. Replace the `TODO: Import useRef` comment and change the first line to import both hooks: `import { useState, useRef, useEffect } from 'react'` (one import line, not two).
+1. Delete the `TODO: Import useRef` comment and change the first line to import all three hooks in one line: `import { useState, useRef, useEffect } from 'react'` (one import line, not two).
 2. Replace the `TODO: Create a ref` comment and its commented line with:
 ```jsx
   const searchInputRef = useRef(null)
@@ -301,6 +311,11 @@ In `src/components/SearchBar.jsx`:
 ```
 
 **Checkpoint 5:** open /projects: the cursor is already in the search box. Type something, click ✕: the box empties, all six cards return, and the cursor is back in the box.
+
+What's happening here:
+- `useRef(null)` gives you a box whose `.current` React fills with the real `<input>` element once it is on the page; changing `.current` never re-renders
+- `?.` (optional chaining) calls `focus()` only if `.current` is set, so the code is safe on the first render before the input exists
+- The input stays controlled (`value` and `onChange`); the ref is only for focus
 
 #### Part 6 (stretch): `useLocalStorage`, and a theme that survives a refresh (10 minutes)
 
@@ -335,20 +350,25 @@ export function useLocalStorage(key, initialValue) {
 2. **Use it for the theme.** In `src/App.jsx`:
    - add `import { useLocalStorage } from './hooks/useLocalStorage'` under the page imports
    - replace `const [theme, setTheme] = useState('light')` (and the comment above it) with `const [theme, setTheme] = useLocalStorage('portfolio-theme', 'light')`
-   - the file no longer uses `useState`: change its first line to remove that import (an unused import is only a lint warning, but leave the file clean)
+   - the file no longer uses `useState`: delete its first line, `import { useState } from 'react'`, entirely
 
-**Checkpoint 6:** click the moon, the theme goes dark; refresh the page, it stays dark. DevTools, Application tab, Local Storage: a `portfolio-theme` key with `"dark"`.
+**Checkpoint 6:** click the moon button in the header (the starter's `theme-toggle`, which adds the `theme-dark` class that `src/styles/index.css` styles), the theme goes dark; refresh the page, it stays dark. DevTools, Application tab, Local Storage: a `portfolio-theme` key with `"dark"`.
+
+What's happening here:
+- `useState(() => ...)` with a function runs that function once, on the first render, so localStorage is read once and not on every render
+- `value instanceof Function` lets callers pass a function the way `setState(prev => ...)` works
+- The hook has the same `[value, setValue]` shape as `useState`, so `App.jsx` changes one line and nothing else
 
 ### 🏆 Challenge Extensions (if you finish early)
 
 **Tier 1 (about 10 minutes): a 404 page.** Add a `NotFoundPage` under `src/pages/` (an `<h1>` and a `Link` home) and a last route `<Route path="*" element={<NotFoundPage />} />`.
 - **Done when:** http://localhost:5173/anything shows your 404 page with a working link home, and every other route still works.
 
-**Tier 2 (about 15 minutes, after Tier 1): nested routes with a shared layout.** Create `src/pages/ProjectsLayout.jsx` that renders a heading, then `<Outlet />`. Nest the projects routes under it: `<Route path="/projects" element={<ProjectsLayout />}>` with `<Route index element={<ProjectsPage />} />` and `<Route path=":id" element={<ProjectDetailPage />} />` inside.
+**Tier 2 (about 15 minutes, after Tier 1): nested routes with a shared layout.** Create `src/pages/ProjectsLayout.jsx` (`import { Outlet } from 'react-router-dom'`) that renders a heading, then `<Outlet />`. In `App.jsx`, delete the two flat routes `/projects` and `/projects/:id` and put in their place `<Route path="/projects" element={<ProjectsLayout />}>` with `<Route index element={<ProjectsPage />} />` and `<Route path=":id" element={<ProjectDetailPage />} />` inside it.
 - **Done when:** the heading stays on screen while you move between the grid and a project page, and both URLs still work when typed directly.
 
-**Tier 3 (253A, about 20 minutes, a bounded task): code splitting.** Load the five pages with `lazy(() => import('./pages/HomePage'))` and wrap `<Routes>` in `<Suspense fallback={<div className="spinner">Loading...</div>}>`.
-- **Done when:** `npm run build` prints one JavaScript chunk per page (six `.js` files under `dist/assets/` instead of one), and the app still navigates everywhere with no errors in the console.
+**Tier 3 (253A students, about 20 minutes, a bounded task): code splitting.** In `App.jsx`, `import { lazy, Suspense } from 'react'`, delete the five static page imports from Part 1 and replace each with `const HomePage = lazy(() => import('./pages/HomePage'))` (and so on for the other four), then wrap `<Routes>` in `<Suspense fallback={<div className="spinner">Loading...</div>}>`. The static imports must go, or nothing splits.
+- **Done when:** `npm run build` prints one JavaScript chunk per page (at least six `.js` files under `dist/assets/` instead of one), and the app still navigates everywhere with no errors in the console.
 
 ### 🐛 Troubleshooting Guide
 
@@ -360,7 +380,7 @@ export function useLocalStorage(key, initialValue) {
 
 **The project page always shows Task Manager.** `const project = projects[0]` is still there; Part 3 step 1 replaces it with `projects.find(...)`.
 
-**Projects page shows "Could not load projects: HTTP error! status: 404".** The URL in `useFetch(...)` must be `/projects.json` with the leading slash, and `public/projects.json` must exist.
+**Projects page shows a red "Could not load projects" box.** In development the text is "Unexpected token '<'" (the dev server answered with the HTML page, so the path is wrong); on a deployed site it is "HTTP error! status: 404". Either way: the URL in `useFetch(...)` must be `/projects.json` with the leading slash, and `public/projects.json` must exist.
 
 **Search filters nothing after Part 4.** `handleSearch` must set `searchTerm`, and `filteredProjects` must be computed from `projects || []`, as in Part 4 step 2.
 
@@ -374,12 +394,12 @@ export function useLocalStorage(key, initialValue) {
 
 ### ✅ What "complete" means (complete/incomplete grade)
 
-A pushed repository with commits made today whose app shows, in this order:
+A pushed repository with commits made today whose app shows all four of these:
 - (a) Part 1: five routes that render when typed into the address bar
 - (b) Part 2: nav links that change the page without a reload, the active one highlighted, and project cards that open `/projects/<id>`
 - (c) Part 3: `/projects/weather-dashboard` shows that project; `/projects/nope` shows Not found with a working button
-- (d) Part 4: the Projects page loads its six projects through `useFetch('/projects.json')` with a visible loading state
+- (d) Part 4: the Projects page loads its six projects through `useFetch('/projects.json')`, with the loading and error states in the code (the spinner is visible with DevTools throttling, as in Checkpoint 4)
 
-Parts 5 and 6 and the Tiers are optional. If you stop early, push what works: an app with (a) to (c) and a note in the commit message is worth more than a broken Part 4.
+Parts 5 and 6 and the Tiers are optional. If you stop early, push what works: an app with (a) to (c) plus a commit message that says where you stopped is COMPLETE; a broken Part 4 pushed over a working (a) to (c) is not.
 
 Before you leave: `git add .`, `git commit -m "In-person project 9"`, `git push`, then paste your repository URL into the bCourses assignment.
