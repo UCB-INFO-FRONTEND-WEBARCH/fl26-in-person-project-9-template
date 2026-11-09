@@ -125,7 +125,7 @@ import { NavLink } from 'react-router-dom'
 ```jsx
 import { Link } from 'react-router-dom'
 ```
-   and replace the two `<button>` elements inside `.hero-buttons` with:
+   and replace the `TODO: Replace these buttons` comment and the two `<button>` elements inside `.hero-buttons` with:
 ```jsx
           <Link to="/projects" className="btn btn-primary">
             View My Projects
@@ -166,7 +166,7 @@ import { useParams, useNavigate } from 'react-router-dom'
   const project = projects.find(p => p.id === id)
 ```
 
-2. **Not found gets a way back.** Inside the `if (!project)` block, replace the `TODO: Add button` comment with:
+2. **Not found gets a way back.** The `if (!project)` block already handles a missing project (delete the `TODO: Handle case` comment above it). Inside the block, replace the `TODO: Add button` comment with:
 ```jsx
         <button className="btn btn-primary" onClick={() => navigate('/projects')}>
           Back to Projects
